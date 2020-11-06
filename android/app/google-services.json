@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "167899358682",
+    "firebase_url": "https://recomendo-a6f84.firebaseio.com",
+    "project_id": "recomendo-a6f84",
+    "storage_bucket": "recomendo-a6f84.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167899358682:android:26b22ded4a3e0d8820cce3",
+        "android_client_info": {
+          "package_name": "com.recomendo.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "167899358682-qg5eafplmgaot252uccp3bg759r0a6nj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdN07FIU2ewmQkTOYgJO5nQ0uNGFU8QPQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "167899358682-qg5eafplmgaot252uccp3bg759r0a6nj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
