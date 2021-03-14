@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:local_auth/auth_strings.dart';
 import 'package:local_auth/local_auth.dart';
 
 class AuthenticationHelper {
@@ -52,14 +53,27 @@ class AuthenticationHelper {
 
   Future<bool> _authenticateUser() async {
     bool isAuthenticated = false;
+    const androidAuthStrings = const AndroidAuthMessages(
+      cancelButton: "CANCELAR",
+      goToSettingsButton: "",
+      fingerprintHint: "",
+      fingerprintNotRecognized: "fingerprintNotRecognized",
+      fingerprintRequiredTitle: "fingerprintRequiredTitle",
+      fingerprintSuccess: "fingerprintSuccess",
+      goToSettingsDescription: "goToSettingsDescription",
+      signInTitle: "Confirme sua digital",
+    );
+
     try {
       isAuthenticated = await _localAuthentication.authenticateWithBiometrics(
-        localizedReason: "Please authenticate to view your transaction overview",
+        localizedReason: "Toque no sensor para acessar sua conta.",
         useErrorDialogs: true,
         stickyAuth: true,
+        sensitiveTransaction: true,
+        androidAuthStrings: androidAuthStrings,
       );
     } on PlatformException catch (e) {
-      print(e);
+      print("Exception -----> $e");
     }
 
     //if (!mounted) return;
