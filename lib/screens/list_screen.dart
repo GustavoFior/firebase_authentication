@@ -3,8 +3,6 @@ import 'package:firebase_authentication/screens/home_screen.dart';
 import 'package:firebase_authentication/widgets/custom_icon_button.dart';
 import 'package:firebase_authentication/widgets/custom_text_field.dart';
 
-import 'login_screen.dart';
-
 class ListScreen extends StatefulWidget {
   @override
   _ListScreenState createState() => _ListScreenState();

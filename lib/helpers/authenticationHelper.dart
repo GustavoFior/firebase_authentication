@@ -1,12 +1,79 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:local_auth/local_auth.dart';
 
 class AuthenticationHelper {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email']);
+  final LocalAuthentication _localAuthentication = LocalAuthentication();
 
   void setAuthConfigurations() {
     _auth.setLanguageCode("pt_br");
+  }
+
+  Future signinWithBiometric() async {
+    var result;
+    if (await _isBiometricAvailable()) {
+      await _getListOfBiometricTypes();
+      result = await _authenticateUser();
+    }
+    print(result);
+  }
+
+  Future<bool> _isBiometricAvailable() async {
+    bool isAvailable = false;
+    try {
+      isAvailable = await _localAuthentication.canCheckBiometrics;
+    } catch (e) {
+      print(e);
+    }
+
+    //if (!mounted) return isAvailable;
+
+    isAvailable ? print('Biometric is available!') : print('Biometric is unavailable.');
+
+    return isAvailable;
+  }
+
+  Future<List<BiometricType>> _getListOfBiometricTypes() async {
+    List<BiometricType> listOfBiometrics;
+    try {
+      listOfBiometrics = await _localAuthentication.getAvailableBiometrics();
+    } on PlatformException catch (e) {
+      print(e);
+    }
+
+    //if (!mounted) return;
+
+    print(listOfBiometrics);
+    return listOfBiometrics;
+  }
+
+  Future<bool> _authenticateUser() async {
+    bool isAuthenticated = false;
+    try {
+      isAuthenticated = await _localAuthentication.authenticateWithBiometrics(
+        localizedReason: "Please authenticate to view your transaction overview",
+        useErrorDialogs: true,
+        stickyAuth: true,
+      );
+    } on PlatformException catch (e) {
+      print(e);
+    }
+
+    //if (!mounted) return;
+
+    isAuthenticated ? print('User is authenticated!') : print('User is not authenticated.');
+    return isAuthenticated;
+
+    /* if (isAuthenticated) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => TransactionScreen(),
+        ),
+      );
+    } */
   }
 
   Future<bool> signupWithEmailAndPassword(String email, String password) async {
@@ -93,6 +160,29 @@ class AuthenticationHelper {
     }
     return null;
   }
+
+  /* class FirebaseGoogleService implements IFirebaseGoogleService{
+  Future<UserEntity> efetuaLogin() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    UserEntity userEntity;
+    try {
+      UserCredential userCredential;
+      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleAuthCredential googleAuthCredential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      userCredential = await _auth.signInWithCredential(googleAuthCredential);
+      userEntity = UserMapper.fromUser(userCredential.user);
+      return userEntity;
+    } catch (e) {
+      print(e);
+      print("Failed to sign in with Google: $e");
+      return userEntity;
+    }
+  }
+} */
 
   Future<void> signOutGoogle() async {
     try {

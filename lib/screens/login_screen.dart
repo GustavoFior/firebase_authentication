@@ -1,3 +1,4 @@
+import 'package:firebase_authentication/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:firebase_authentication/helpers/authenticationHelper.dart';
@@ -38,6 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     _signInButton(),
+                    _biometricButton(),
                     SizedBox(height: 25),
                     CustomTextField(
                       hint: 'E-mail',
@@ -101,7 +103,41 @@ class _LoginScreenState extends State<LoginScreen> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) {
-                  return ListScreen();
+                  return SafeArea(
+                    child: Scaffold(
+                      resizeToAvoidBottomInset: false,
+                      body: Container(
+                        margin: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    'Tarefas',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 32),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.exit_to_app),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              result.toString(),
+                              style: TextStyle(fontSize: 11, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
             );
@@ -122,6 +158,80 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.only(left: 10),
               child: Text(
                 'Login com Google',
+                style: TextStyle(fontSize: 15, color: Colors.grey),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _biometricButton() {
+    return OutlineButton(
+      splashColor: Colors.grey,
+      onPressed: () async {
+        // FIFI posso retornar assim ou bool
+        await authHelper.signinWithBiometric().then((result) {
+          if (result != null) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) {
+                  return SafeArea(
+                    child: Scaffold(
+                      resizeToAvoidBottomInset: false,
+                      body: Container(
+                        margin: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    'Tarefas',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 32),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.exit_to_app),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              result.toString(),
+                              style: TextStyle(fontSize: 11, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        });
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+      highlightElevation: 0,
+      borderSide: BorderSide(color: Colors.grey),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image(image: AssetImage("assets/images/google_logo.png"), height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(
+                'Biometria',
                 style: TextStyle(fontSize: 15, color: Colors.grey),
               ),
             )
