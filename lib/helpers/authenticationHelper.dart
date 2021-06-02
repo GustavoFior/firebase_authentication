@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -37,8 +39,8 @@ class AuthenticationHelper {
     return isAvailable;
   }
 
-  Future<List<BiometricType>> _getListOfBiometricTypes() async {
-    List<BiometricType> listOfBiometrics;
+  Future<List<BiometricType>?> _getListOfBiometricTypes() async {
+    List<BiometricType>? listOfBiometrics;
     try {
       listOfBiometrics = await _localAuthentication.getAvailableBiometrics();
     } on PlatformException catch (e) {
@@ -56,16 +58,17 @@ class AuthenticationHelper {
     const androidAuthStrings = const AndroidAuthMessages(
       cancelButton: "CANCELAR",
       goToSettingsButton: "",
-      fingerprintHint: "",
-      fingerprintNotRecognized: "fingerprintNotRecognized",
-      fingerprintRequiredTitle: "fingerprintRequiredTitle",
-      fingerprintSuccess: "fingerprintSuccess",
+      //fingerprintHint: "", // TODO MUDAR
+      //fingerprintNotRecognized: "fingerprintNotRecognized",
+      //fingerprintRequiredTitle: "fingerprintRequiredTitle",
+      //fingerprintSuccess: "fingerprintSuccess",
       goToSettingsDescription: "goToSettingsDescription",
       signInTitle: "Confirme sua digital",
     );
 
     try {
-      isAuthenticated = await _localAuthentication.authenticateWithBiometrics(
+      isAuthenticated = await _localAuthentication.authenticate(
+        biometricOnly: false,
         localizedReason: "Toque no sensor para acessar sua conta.",
         useErrorDialogs: true,
         stickyAuth: true,
@@ -95,13 +98,13 @@ class AuthenticationHelper {
       setAuthConfigurations();
 
       final UserCredential authResult = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      final User user = authResult.user;
+      final User? user = authResult.user;
 
       if (user != null) {
         assert(!user.isAnonymous);
         assert(await user.getIdToken() != null);
 
-        final User currentUser = _auth.currentUser;
+        final User currentUser = _auth.currentUser!;
 
         assert(user.uid == currentUser.uid);
 
@@ -124,13 +127,13 @@ class AuthenticationHelper {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
 
       final UserCredential authResult = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      final User user = authResult.user;
+      final User? user = authResult.user;
 
       if (user != null) {
         assert(!user.isAnonymous);
         assert(await user.getIdToken() != null);
 
-        final User currentUser = _auth.currentUser;
+        final User currentUser = _auth.currentUser!;
 
         assert(user.uid == currentUser.uid);
 
@@ -143,30 +146,33 @@ class AuthenticationHelper {
     return false;
   }
 
-  Future<User> signInWithGoogle() async {
+  Future<User?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
 
-      setAuthConfigurations();
-      final UserCredential authResult = await _auth.signInWithCredential(credential);
-      final User user = authResult.user;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
 
-      if (user != null) {
-        assert(!user.isAnonymous);
-        assert(await user.getIdToken() != null);
+        setAuthConfigurations();
+        final UserCredential authResult = await _auth.signInWithCredential(credential);
+        final User? user = authResult.user;
 
-        final User currentUser = _auth.currentUser;
-        assert(user.uid == currentUser.uid);
+        if (user != null) {
+          assert(!user.isAnonymous);
+          assert(await user.getIdToken() != null);
 
-        print('signInWithGoogle succeeded: $user');
+          final User currentUser = _auth.currentUser!;
+          assert(user.uid == currentUser.uid);
 
-        return user;
+          print('signInWithGoogle succeeded: $user');
+
+          return user;
+        }
       }
     } on FirebaseAuthException catch (e, s) {
       print("DEU ERRO signInWithGoogle - Exception: " + e.toString()); // FIFI TIRAR
